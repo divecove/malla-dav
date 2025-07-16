@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malla Interactiva</title>
+    <style>
+        :root {
+            --color-background: #f0f4f8;
+            --color-header: #e1e8f0;
+            --color-text: #333;
+            --color-locked: #d8dde2;
+            --color-locked-text: #848d95;
+            --color-available: #a7c7e7; /* Pastel Blue */
+            --color-available-hover: #96b9d9;
+            --color-approved: #4a6c8c; /* Darker Blue */
+            --color-approved-text: #ffffff;
+            --color-requirement-pending: #d8dde2;
+            --color-requirement-approved: #4a6c8c;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--color-approved);
+        }
+
+        .main-container {
+            display: flex;
+            gap: 30px;
+        }
+
+        .courses-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .curriculum-grid {
+            flex: 3;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 10px;
+        }
+
+        .grid-header {
+            grid-column: 1 / -1;
+            display: contents;
+        }
+
+        .semester-header {
+            background-color: var(--color-header);
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: var(--border-radius);
+        }
+
+        .semester {
+            background-color: white;
+            border: 2px dashed var(--color-locked);
+            border-radius: var(--border-radius);
+            min-height: 400px;
+            padding: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .semester.drag-over {
+            background-color: var(--color-available);
+        }
+
+        .course {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: background-color 0.3s, color 0.3s;
+            text-align: left;
+        }
+        
+        .course .code {
+            font-weight: bold;
+            display: block;
+            font-size: 0.9em;
+        }
+
+        .course .name {
+            display: block;
+            margin: 4px 0;
+            font-size: 0.85em;
+        }
+
+        .course .credits {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        .course.available {
+            background-color: var(--color-available);
+            cursor: grab;
+        }
+        .course.available:hover {
+            background-color: var(--color-available-hover);
+        }
+
+        .course.locked {
+            background-color: var(--color-locked);
+            color: var(--color-locked-text);
+            cursor: not-allowed;
+            user-select: none;
+        }
+
+        .course.approved {
+            background-color: var(--color-approved);
+            color: var(--color-approved-text);
+            cursor: default;
+        }
+        
+        .dragging {
+            opacity: 0.5;
+        }
+        
+        #requirements-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--color-header);
+        }
+
+        .requirements-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .requirement {
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            user-select: none;
+        }
+
+        .requirement.pending {
+            background-color: var(--color-requirement-pending);
+            color: var(--color-locked-text);
+        }
+
+        .requirement.approved {
+            background-color: var(--color-requirement-approved);
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Malla Curricular Interactiva</h1>
+
+    <div class="main-container">
+        <div class="courses-panel">
+            <h2>Cursos por Asignar</h2>
+            <div id="unassigned-courses" class="semester">
+                </div>
+        </div>
+
+        <div class="curriculum-grid">
+            <div class="grid-header">
+                <div class="semester-header">Semestre 1</div>
+                <div class="semester-header">Semestre 2</div>
+                <div class="semester-header">Semestre 3</div>
+                <div class="semester-header">Semestre 4</div>
+                <div class="semester-header">Semestre 5</div>
+                <div class="semester-header">Semestre 6</div>
+                <div class="semester-header">Semestre 7</div>
+                <div class="semester-header">Semestre 8</div>
+                <div class="semester-header">Semestre 9</div>
+                <div class="semester-header">Semestre 10</div>
+            </div>
+            <div class="semester" data-semester="1"></div>
+            <div class="semester" data-semester="2"></div>
+            <div class="semester" data-semester="3"></div>
+            <div class="semester" data-semester="4"></div>
+            <div class="semester" data-semester="5"></div>
+            <div class="semester" data-semester="6"></div>
+            <div class="semester" data-semester="7"></div>
+            <div class="semester" data-semester="8"></div>
+            <div class="semester" data-semester="9"></div>
+            <div class="semester" data-semester="10"></div>
+        </div>
+    </div>
+
+    <div id="requirements-section">
+        <h2>Pruebas y Requisitos Adicionales</h2>
+        <div class="requirements-container" id="requirements-container">
+            </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- ESTRUCTURA DE DATOS ---
+            // Aquí se definen todos los cursos y sus prerrequisitos.
+            // Para añadir un prerrequisito, simplemente se agrega el 'id' del curso requerido.
+            const coursesData = [
+                {id: "art1", name: "Mínimo de Artes", credits: 10, prerequisites: []},
+                {id: "let1", name: "Mínimo de Letras", credits: 10, prerequisites: []},
+                {id: "ihi0205", name: "Historia Mundial Contemporánea", credits: 10, prerequisites: []},
+                {id: "fil1", name: "Mínimo de Filosofía", credits: 10, prerequisites: []},
+                {id: "mat0100", name: "Razonamiento Cuantitativo", credits: 10, prerequisites: []},
+                {id: "vra0901", name: "Taller de Iniciación", credits: 5, prerequisites: []},
+                {id: "com101", name: "Test de Actualidad I A", credits: 0, prerequisites: []},
+                {id: "est210a", name: "Fundamentos de la Estética", credits: 10, prerequisites: []},
+                {id: "fil217h", name: "Verdad y Belleza", credits: 10, prerequisites: ["fil1"]},
+                {id: "com110", name: "Teoría de la Comunicación", credits: 10, prerequisites: []},
+                {id: "com113", name: "Tecnologías de la Comunicación", credits: 10, prerequisites: []},
+                {id: "com102", name: "Test de Actualidad I B", credits: 0, prerequisites: ["com101"]},
+                {id: "com122", name: "Narración de Ficción", credits: 10, prerequisites: ["com110"]},
+                {id: "com115", name: "Lenguaje Visual", credits: 10, prerequisites: []},
+                {id: "com109", name: "Historia de la Comunicación Social", credits: 10, prerequisites: ["ihi0205"]},
+                {id: "mh", name: "Curso Área de Habilidades Comunicativas Orales", credits: 10, prerequisites: []},
+                {id: "or", name: "OR Teológico", credits: 10, prerequisites: []},
+                {id: "com103", name: "Test de Actualidad II A", credits: 0, prerequisites: ["com102"]},
+                {id: "mr", name: "Metodologías de la Investigación Social", credits: 10, prerequisites: []},
+                {id: "com705", name: "Espectáculo Audiovisual", credits: 10, prerequisites: ["com115"]},
+                {id: "com706", name: "Herramientas de Gestión Audiovisual", credits: 10, prerequisites: []},
+                {id: "com120", name: "Narración de No Ficción", credits: 10, prerequisites: ["com110"]},
+                {id: "fil183", name: "¿Filosofía Para Qué?", credits: 10, prerequisites: ["fil1"]},
+                {id: "com104", name: "Test de Actualidad II B", credits: 0, prerequisites: ["com103"]},
+                {id: "com100", name: "Desafíos de la Comunicación", credits: 10, prerequisites: ["com110"]},
+                {id: "com718", name: "Taller de Lenguaje Audiovisual", credits: 10, prerequisites: ["com115", "com122"]},
+                {id: "com708", name: "Fundamentos Dramáticos de lo Audiovisual", credits: 10, prerequisites: ["com122"]},
+                {id: "com116", name: "Audiencias", credits: 10, prerequisites: ["mr"]},
+                {id: "com3500", name: "Economía de las Comunicaciones", credits: 10, prerequisites: []},
+                {id: "com105", name: "Test de Actualidad III A", credits: 0, prerequisites: ["com104"]},
+                {id: "com704", name: "Seminario de Cine", credits: 10, prerequisites: ["com705"]},
+                {id: "com177", name: "Narración Interactiva", credits: 10, prerequisites: ["com113"]},
+                {id: "com121", name: "Semiología", credits: 10, prerequisites: ["com110"]},
+                {id: "com719", name: "Taller de Realización Audiovisual", credits: 10, prerequisites: ["com718"]},
+                {id: "com709", name: "Generación y Desarrollo de Proyectos Audiovisual", credits: 10, prerequisites: ["com706"]},
+                {id: "com106", name: "Test de Actualidad III B", credits: 0, prerequisites: ["com105"]},
+                {id: "com711", name: "Seminario de Televisión", credits: 10, prerequisites: ["com705"]},
+                {id: "com710", name: "Taller de Televisión", credits: 10, prerequisites: ["com719", "com711"]},
+                {id: "com720", name: "Seminario Documental", credits: 10, prerequisites: ["com120"]},
+                {id: "com712", name: "Géneros y Formatos del Guión Audiovisual", credits: 10, prerequisites: ["com708"]},
+                {id: "com1000", name: "Práctica Interna", credits: 20, prerequisites: []},
+                {id: "com713", name: "Taller de Documental", credits: 10, prerequisites: ["com719", "com720"]},
+                {id: "del307", name: "Derecho de la Comunicación", credits: 10, prerequisites: []},
+                {id: "com200", name: "Éticas de las Comunicaciones", credits: 10, prerequisites: ["com100"]},
+                {id: "com714", name: "Seminario de Nuevas Tendencias", credits: 10, prerequisites: ["com177"]},
+                {id: "com715", name: "Escritura del Relato Audiovisual", credits: 10, prerequisites: ["com712"]},
+                {id: "com716", name: "Taller de Ficción", credits: 10, prerequisites: ["com715", "com719"]},
+                {id: "opt1", name: "Optativo de Profundización 1", credits: 10, prerequisites: []},
+                {id: "com790", name: "Práctica Profesional I", credits: 0, prerequisites: ["com1000"]},
+                {id: "com721", name: "Taller Avanzado de Realización Audiovisual", credits: 10, prerequisites: ["com710", "com713", "com716"]},
+                {id: "com3504", name: "Industria Audiovisual", credits: 10, prerequisites: ["com3500"]},
+                {id: "opt2", name: "Optativo de Profundización 2", credits: 10, prerequisites: []},
+                {id: "opt3", name: "Optativo de Profundización 3", credits: 10, prerequisites: []},
+                {id: "com791", name: "Práctica Profesional II", credits: 0, prerequisites: ["com790"]},
+            ];
+
+            const requirementsData = [
+                { id: 'vra100c', name: 'Examen de Comunicación Escrita', status: 'pending' },
+                { id: 'vra2000', name: 'English Test Alte 2', status: 'pending' },
+                { id: 'taller-iniciacion', name: 'Taller de Iniciación', status: 'approved' },
+            ];
+
+            // --- ESTADO DE LA APLICACIÓN ---
+            let approvedCourses = new Set();
+            let draggedElementId = null;
+
+            // --- FUNCIONES DE RENDERIZADO Y LÓGICA ---
+            
+            function createCourseElement(course) {
+                const courseEl = document.createElement('div');
+                courseEl.id = course.id;
+                courseEl.className = 'course';
+                courseEl.draggable = false; // Se activará si está disponible
+                courseEl.innerHTML = `
+                    <span class="code">${course.id.toUpperCase()}</span>
+                    <span class="name">${course.name}</span>
+                    <span class="credits">${course.credits} créditos</span>
+                `;
+                return courseEl;
+            }
+            
+            function createRequirementElement(req) {
+                const reqEl = document.createElement('div');
+                reqEl.id = req.id;
+                reqEl.className = `requirement ${req.status}`;
+                reqEl.textContent = req.name;
+                reqEl.addEventListener('click', () => toggleRequirement(req, reqEl));
+                return reqEl;
+            }
+            
+            function toggleRequirement(req, reqEl) {
+                if (req.status === 'pending') {
+                    req.status = 'approved';
+                    reqEl.classList.replace('pending', 'approved');
+                } else {
+                    req.status = 'pending';
+                    reqEl.classList.replace('approved', 'pending');
+                }
+            }
+
+            function updateCourseStates() {
+                const allCourses = document.querySelectorAll('.course');
+                allCourses.forEach(courseEl => {
+                    const courseId = courseEl.id;
+                    // No cambiar estado si ya está aprobado
+                    if (approvedCourses.has(courseId)) {
+                        courseEl.className = 'course approved';
+                        courseEl.draggable = false;
+                        return;
+                    }
+
+                    const courseData = coursesData.find(c => c.id === courseId);
+                    const prereqsMet = courseData.prerequisites.every(prereqId => approvedCourses.has(prereqId));
+
+                    if (prereqsMet) {
+                        courseEl.className = 'course available';
+                        courseEl.draggable = true;
+                    } else {
+                        courseEl.className = 'course locked';
+                        courseEl.draggable = false;
+                    }
+                });
+            }
+
+            // --- LÓGICA DE DRAG & DROP ---
+            
+            function addDragDropListeners() {
+                const courses = document.querySelectorAll('.course');
+                courses.forEach(course => {
+                    course.addEventListener('dragstart', (e) => {
+                        if (course.classList.contains('available')) {
+                            draggedElementId = e.target.id;
+                            setTimeout(() => e.target.classList.add('dragging'), 0);
+                        } else {
+                            e.preventDefault();
+                        }
+                    });
+
+                    course.addEventListener('dragend', (e) => {
+                        e.target.classList.remove('dragging');
+                    });
+                });
+
+                const semesters = document.querySelectorAll('.semester');
+                semesters.forEach(semester => {
+                    semester.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        semester.classList.add('drag-over');
+                    });
+                    
+                    semester.addEventListener('dragenter', (e) => {
+                        e.preventDefault();
+                    });
+
+                    semester.addEventListener('dragleave', () => {
+                        semester.classList.remove('drag-over');
+                    });
+
+                    semester.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        semester.classList.remove('drag-over');
+                        const droppedElement = document.getElementById(draggedElementId);
+                        if (droppedElement) {
+                            semester.appendChild(droppedElement);
+                            approvedCourses.add(draggedElementId);
+                            updateCourseStates();
+                        }
+                    });
+                });
+            }
+
+            // --- INICIALIZACIÓN ---
+            
+            function initialize() {
+                const unassignedContainer = document.getElementById('unassigned-courses');
+                const requirementsContainer = document.getElementById('requirements-container');
+                
+                // Cargar cursos
+                coursesData.forEach(course => {
+                    const courseEl = createCourseElement(course);
+                    unassignedContainer.appendChild(courseEl);
+                });
+                
+                // Cargar requisitos
+                requirementsData.forEach(req => {
+                    const reqEl = createRequirementElement(req);
+                    requirementsContainer.appendChild(reqEl);
+                });
+
+                updateCourseStates();
+                addDragDropListeners();
+            }
+
+            initialize();
+        });
+    </script>
+</body>
+</html>
