@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Malla Interactiva Comunicación</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+</head>
+<body>
+  <h1>Malla Curricular Interactiva</h1>
+  <div class="malla-container">
+    <!-- Columnas de semestres -->
+    <div class="malla">
+      <!-- Generamos columnas de semestres 1 al 10 -->
+      <script>
+        for (let i = 1; i <= 10; i++) {
+          document.write(`<div class="semestre" data-semestre="${i}">
+            <h2>Semestre ${i}</h2>
+            <div class="dropzone"></div>
+          </div>`);
+        }
+      </script>
+    </div>
+    <!-- Cursos arrastrables -->
+    <div class="cursos-container">
+      <h2>Cursos</h2>
+      <div id="cursos">
+        <!-- Cursos insertados dinámicamente desde script.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de requisitos adicionales -->
+  <div class="requisitos">
+    <h2>Pruebas y Requisitos Adicionales</h2>
+    <div>
+      <label><input type="checkbox"> Examen de Comunicación Escrita (VRA100C) – 0 créditos</label>
+    </div>
+    <div>
+      <label><input type="checkbox"> English Test Alte 2 (VRA2000) – 0 créditos</label>
+    </div>
+    <div>
+      <label><input type="checkbox"> Taller de Iniciación – Aprobado</label>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
