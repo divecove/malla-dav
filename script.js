@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const semestersGrid = document.getElementById('semesters-grid');
     const additionalReqsContainer = document.getElementById('additional-requirements');
 
-    const courseData = [
+const courseData = [
         { code: 'MIN-ART', name: 'Mínimo de Artes', credits: 10, prerequisites: [] },
         { code: 'MIN-LET', name: 'Mínimo de Letras', credits: 10, prerequisites: [] },
         { code: 'IHI0205', name: 'Historia Mundial Contemporanea', credits: 10, prerequisites: [] },
