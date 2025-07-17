@@ -67,10 +67,64 @@ document.addEventListener('DOMContentLoaded', () => {
     const semestersGrid = document.getElementById('semesters-grid');
     const additionalReqsContainer = document.getElementById('additional-requirements');
 
-    if (!courseBank || !semestersGrid || !additionalReqsContainer) {
-        console.error("Error: No se encontró uno de los contenedores principales (course-bank, semesters-grid, or additional-requirements). Revisa tu HTML.");
-        return;
+
+    function saveState() {
+        const state = {
+            semesters: {},
+            bank: [],
+            requirements: {}
+        };
+
+        document.querySelectorAll('.semester-column').forEach((col, index) => {
+            const semesterId = `semester-${index + 1}`;
+            state.semesters[semesterId] = Array.from(col.querySelectorAll('.course')).map(c => c.id);
+        });
+
+        state.bank = Array.from(courseBank.querySelectorAll('.course')).map(c => c.id);
+
+        document.querySelectorAll('.req-item').forEach(req => {
+            state.requirements[req.id] = req.classList.contains('completed');
+        });
+
+        localStorage.setItem('mallaState', JSON.stringify(state));
     }
+
+    function loadState() {
+        const savedState = JSON.parse(localStorage.getItem('mallaState'));
+        if (!savedState) return;
+
+        document.querySelectorAll('.semester-column').forEach(col => col.innerHTML = `<h3>${col.querySelector('h3').textContent}</h3>`);
+        courseBank.innerHTML = '';
+
+        const allCourses = new Map();
+        document.querySelectorAll('.course').forEach(c => allCourses.set(c.id, c));
+
+        savedState.bank.forEach(courseId => {
+            const courseEl = allCourses.get(courseId);
+            if (courseEl) courseBank.appendChild(courseEl);
+        });
+
+        Object.keys(savedState.semesters).forEach((semesterKey, index) => {
+            const semesterCol = document.querySelector(`[data-semester="${index + 1}"]`);
+            if (semesterCol) {
+                savedState.semesters[semesterKey].forEach(courseId => {
+                    const courseEl = allCourses.get(courseId);
+                    if (courseEl) {
+                        semesterCol.appendChild(courseEl);
+                        courseEl.classList.add('approved');
+                    }
+                });
+            }
+        });
+
+        Object.keys(savedState.requirements).forEach(reqId => {
+            const reqEl = document.getElementById(reqId);
+            if (reqEl && savedState.requirements[reqId]) {
+                reqEl.classList.add('completed');
+            }
+        });
+    }
+
 
     for (let i = 1; i <= 10; i++) {
         const semesterCol = document.createElement('div');
@@ -87,12 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         courseEl.draggable = true;
         courseEl.dataset.code = course.code;
         courseEl.dataset.prerequisites = JSON.stringify(course.prerequisites);
-        
-        courseEl.innerHTML = `
-            <span class="course-code">${course.code}</span>
-            <span class="course-name">${course.name}</span>
-            <span class="course-credits">${course.credits} créditos</span>
-        `;
+        courseEl.innerHTML = `<span class="course-code">${course.code}</span><span class="course-name">${course.name}</span><span class="course-credits">${course.credits} créditos</span>`;
         courseBank.appendChild(courseEl);
     });
 
@@ -103,12 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
         reqEl.textContent = req.name;
         reqEl.addEventListener('click', () => {
             reqEl.classList.toggle('completed');
+            saveState(); 
         });
         additionalReqsContainer.appendChild(reqEl);
     });
 
     const courses = document.querySelectorAll('.course');
     const semesterColumns = document.querySelectorAll('.semester-column');
+    const allDropZones = [...semesterColumns, courseBank];
+
 
     courses.forEach(course => {
         course.addEventListener('dragstart', (e) => {
@@ -120,25 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const allDropZones = [...semesterColumns, courseBank];
-
     allDropZones.forEach(zone => {
         zone.addEventListener('dragover', e => {
             e.preventDefault();
-            if (zone.classList.contains('semester-column')) {
-                zone.classList.add('drag-over');
-            }
+            if (zone.classList.contains('semester-column')) zone.classList.add('drag-over');
         });
         zone.addEventListener('dragleave', () => {
-            if (zone.classList.contains('semester-column')) {
-                zone.classList.remove('drag-over');
-            }
+            if (zone.classList.contains('semester-column')) zone.classList.remove('drag-over');
         });
         zone.addEventListener('drop', e => {
             e.preventDefault();
-            if (zone.classList.contains('semester-column')) {
-                zone.classList.remove('drag-over');
-            }
+            if (zone.classList.contains('semester-column')) zone.classList.remove('drag-over');
+            
             const courseId = e.dataTransfer.getData('text/plain');
             const courseEl = document.getElementById(courseId);
             
@@ -150,9 +195,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     courseEl.classList.remove('approved');
                 }
                 updatePrerequisites();
+                saveState(); 
             }
         });
     });
+
 
     function updatePrerequisites() {
         const approvedCourses = new Set();
@@ -163,20 +210,14 @@ document.addEventListener('DOMContentLoaded', () => {
         courses.forEach(courseEl => {
             if (!approvedCourses.has(courseEl.dataset.code)) {
                 const prerequisites = JSON.parse(courseEl.dataset.prerequisites);
-                if (prerequisites.length > 0) {
-                    const allPrereqsMet = prerequisites.every(prereq => approvedCourses.has(prereq));
-                    
-                    if (allPrereqsMet) {
-                        courseEl.classList.remove('locked');
-                        courseEl.draggable = true;
-                    } else {
-                        courseEl.classList.add('locked');
-                        courseEl.draggable = false;
-                    }
-                }
+                const allPrereqsMet = prerequisites.every(prereq => approvedCourses.has(prereq));
+                
+                courseEl.classList.toggle('locked', !allPrereqsMet);
+                courseEl.draggable = allPrereqsMet;
             }
         });
     }
 
+    loadState();
     updatePrerequisites();
 });
