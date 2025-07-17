@@ -1,0 +1,151 @@
+:root {
+    --color-bg: #f0f8ff; /* AliceBlue - Fondo general */
+    --color-container-bg: #ffffff;
+    --color-header: #003366; /* Azul oscuro para títulos */
+    --color-text: #333333;
+    --color-available: #b3d9ff; /* Azul pastel para cursos disponibles */
+    --color-approved: #3385ff; /* Azul más oscuro para cursos aprobados */
+    --color-approved-text: #ffffff;
+    --color-locked: #e0e0e0; /* Gris para cursos bloqueados */
+    --color-locked-text: #888888;
+    --color-semester-border: #cce6ff;
+    --color-drag-over: #a3c2e0; /* Sombra al arrastrar sobre columna */
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    margin: 0;
+    padding: 20px;
+    user-select: none;
+}
+
+h1, h2, h3 {
+    color: var(--color-header);
+    text-align: center;
+}
+
+.course-bank-container {
+    padding: 20px;
+    margin-bottom: 30px;
+    background-color: var(--color-container-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+#course-bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+/* --- Course Item Styles --- */
+.course {
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: grab;
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.2s;
+    text-align: left;
+    width: 180px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: var(--color-available);
+}
+
+.course:active {
+    cursor: grabbing;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.course-code {
+    font-weight: bold;
+    font-size: 0.9em;
+    display: block;
+}
+
+.course-name {
+    font-size: 0.85em;
+    margin: 4px 0;
+    display: block;
+    height: 40px; /* Fixed height for alignment */
+}
+
+.course-credits {
+    font-size: 0.8em;
+    font-style: italic;
+    display: block;
+    text-align: right;
+}
+
+.course.locked {
+    background-color: var(--color-locked);
+    color: var(--color-locked-text);
+    cursor: not-allowed;
+    pointer-events: none; /* Disables all mouse events */
+}
+
+.course.approved {
+    background-color: var(--color-approved);
+    color: var(--color-approved-text);
+}
+
+#semesters-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 15px;
+}
+
+.semester-column {
+    background-color: var(--color-container-bg);
+    padding: 15px;
+    border-radius: 12px;
+    min-height: 400px;
+    border: 2px dashed var(--color-semester-border);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.semester-column.drag-over {
+    background-color: var(--color-drag-over);
+    border-color: var(--color-header);
+}
+
+.semester-column h3 {
+    margin-top: 0;
+    font-size: 1em;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-semester-border);
+}
+
+.semester-column .course {
+    margin-bottom: 10px;
+}
+
+.additional-requirements-container {
+    padding: 20px;
+    margin-top: 30px;
+    background-color: var(--color-container-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+#additional-requirements {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.req-item {
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: var(--color-locked);
+    color: var(--color-locked-text);
+    font-weight: 500;
+}
+
+.req-item.completed {
+    background-color: var(--color-approved);
+    color: var(--color-approved-text);
+}
