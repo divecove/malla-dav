@@ -67,7 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const semestersGrid = document.getElementById('semesters-grid');
     const additionalReqsContainer = document.getElementById('additional-requirements');
 
-    
+    if (!courseBank || !semestersGrid || !additionalReqsContainer) {
+        console.error("Error: No se encontró uno de los contenedores principales (course-bank, semesters-grid, or additional-requirements). Revisa tu HTML.");
+        return;
+    }
+
     for (let i = 1; i <= 10; i++) {
         const semesterCol = document.createElement('div');
         semesterCol.classList.add('semester-column');
@@ -92,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         courseBank.appendChild(courseEl);
     });
 
-    // Create Additional Requirement Items
     additionalReqsData.forEach(req => {
         const reqEl = document.createElement('div');
         reqEl.classList.add('req-item');
@@ -104,51 +107,52 @@ document.addEventListener('DOMContentLoaded', () => {
         additionalReqsContainer.appendChild(reqEl);
     });
 
-
     const courses = document.querySelectorAll('.course');
     const semesterColumns = document.querySelectorAll('.semester-column');
 
     courses.forEach(course => {
         course.addEventListener('dragstart', (e) => {
             e.dataTransfer.setData('text/plain', course.id);
-            setTimeout(() => course.style.opacity = '0.5', 0);
+            setTimeout(() => { course.style.opacity = '0.5'; }, 0);
         });
         course.addEventListener('dragend', () => {
             course.style.opacity = '1';
         });
     });
 
-    semesterColumns.forEach(column => {
-        column.addEventListener('dragover', e => {
+    const allDropZones = [...semesterColumns, courseBank];
+
+    allDropZones.forEach(zone => {
+        zone.addEventListener('dragover', e => {
             e.preventDefault();
-            column.classList.add('drag-over');
+            if (zone.classList.contains('semester-column')) {
+                zone.classList.add('drag-over');
+            }
         });
-        column.addEventListener('dragleave', () => {
-            column.classList.remove('drag-over');
+        zone.addEventListener('dragleave', () => {
+            if (zone.classList.contains('semester-column')) {
+                zone.classList.remove('drag-over');
+            }
         });
-        column.addEventListener('drop', e => {
+        zone.addEventListener('drop', e => {
             e.preventDefault();
-            column.classList.remove('drag-over');
+            if (zone.classList.contains('semester-column')) {
+                zone.classList.remove('drag-over');
+            }
             const courseId = e.dataTransfer.getData('text/plain');
             const courseEl = document.getElementById(courseId);
             
-            if (!courseEl.classList.contains('locked')) {
-                column.appendChild(courseEl);
-                courseEl.classList.add('approved');
+            if (courseEl && !courseEl.classList.contains('locked')) {
+                zone.appendChild(courseEl);
+                if (zone.classList.contains('semester-column')) {
+                    courseEl.classList.add('approved');
+                } else {
+                    courseEl.classList.remove('approved');
+                }
                 updatePrerequisites();
             }
         });
     });
-    
-    courseBank.addEventListener('dragover', e => e.preventDefault());
-    courseBank.addEventListener('drop', e => {
-         const courseId = e.dataTransfer.getData('text/plain');
-         const courseEl = document.getElementById(courseId);
-         courseBank.appendChild(courseEl);
-         courseEl.classList.remove('approved');
-         updatePrerequisites();
-    });
-
 
     function updatePrerequisites() {
         const approvedCourses = new Set();
@@ -157,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         courses.forEach(courseEl => {
-            if (!courseEl.parentElement.classList.contains('semester-column')) {
+            if (!approvedCourses.has(courseEl.dataset.code)) {
                 const prerequisites = JSON.parse(courseEl.dataset.prerequisites);
                 if (prerequisites.length > 0) {
                     const allPrereqsMet = prerequisites.every(prereq => approvedCourses.has(prereq));
