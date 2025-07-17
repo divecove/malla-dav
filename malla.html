@@ -207,9 +207,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- ESTRUCTURA DE DATOS ---
-            // Aquí se definen todos los cursos y sus prerrequisitos.
-            // Para añadir un prerrequisito, simplemente se agrega el 'id' del curso requerido.
             const coursesData = [
                 {id: "art1", name: "Mínimo de Artes", credits: 10, prerequisites: []},
                 {id: "let1", name: "Mínimo de Letras", credits: 10, prerequisites: []},
@@ -273,11 +270,9 @@
                 { id: 'taller-iniciacion', name: 'Taller de Iniciación', status: 'approved' },
             ];
 
-            // --- ESTADO DE LA APLICACIÓN ---
             let approvedCourses = new Set();
             let draggedElementId = null;
 
-            // --- FUNCIONES DE RENDERIZADO Y LÓGICA ---
             
             function createCourseElement(course) {
                 const courseEl = document.createElement('div');
@@ -315,7 +310,6 @@
                 const allCourses = document.querySelectorAll('.course');
                 allCourses.forEach(courseEl => {
                     const courseId = courseEl.id;
-                    // No cambiar estado si ya está aprobado
                     if (approvedCourses.has(courseId)) {
                         courseEl.className = 'course approved';
                         courseEl.draggable = false;
@@ -335,7 +329,6 @@
                 });
             }
 
-            // --- LÓGICA DE DRAG & DROP ---
             
             function addDragDropListeners() {
                 const courses = document.querySelectorAll('.course');
@@ -382,19 +375,16 @@
                 });
             }
 
-            // --- INICIALIZACIÓN ---
             
             function initialize() {
                 const unassignedContainer = document.getElementById('unassigned-courses');
                 const requirementsContainer = document.getElementById('requirements-container');
                 
-                // Cargar cursos
                 coursesData.forEach(course => {
                     const courseEl = createCourseElement(course);
                     unassignedContainer.appendChild(courseEl);
                 });
                 
-                // Cargar requisitos
                 requirementsData.forEach(req => {
                     const reqEl = createRequirementElement(req);
                     requirementsContainer.appendChild(reqEl);
