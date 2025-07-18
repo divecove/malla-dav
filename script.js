@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'req-iniciacion', name: 'Taller de Iniciación Aprobado' }
   ];
 
-  // Crear semestres
+
   for (let i = 1; i <= 10; i++) {
     const col = document.createElement('div');
     col.className = 'semester-column';
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     semestersGrid.appendChild(col);
   }
 
-  // Renderizar cursos
+
   courseData.forEach(course => {
     const c = document.createElement('div');
     c.className = 'course';
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     courseBank.appendChild(c);
   });
 
-  // Renderizar requisitos adicionales
+
   additionalReqsData.forEach(req => {
     const r = document.createElement('div');
     r.className = 'req-item';
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     additionalReqsContainer.appendChild(r);
   });
 
-  // Drag & Drop
+
   function enableDragAndDrop() {
     const courses = document.querySelectorAll('.course');
     const dropzones = [...document.querySelectorAll('.semester-column'), courseBank];
