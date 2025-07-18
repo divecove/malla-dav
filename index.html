@@ -1,46 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malla Interactiva con Local Storage</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malla Curricular Interactiva</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header>
+    <h1>Malla Curricular Interactiva</h1>
+  </header>
 
-    <header>
-        <h1>Malla Curricular Interactiva</h1>
-    </header>
-
-    <main class="main-container">
-
-      <aside class="courses-sidebar">
-    <div class="course-bank-container">
+  <main class="main-container">
+    <aside class="courses-sidebar">
+      <div class="course-bank-container">
         <h2>Banco de Cursos</h2>
         <p>Arrastra un curso a un semestre para marcarlo como aprobado.</p>
         <div id="course-bank"></div>
-    </div>
+      </div>
 
-    <div class="additional-requirements-container">
+      <div class="additional-requirements-container">
         <h2>Requisitos Adicionales</h2>
         <div id="additional-requirements"></div>
-    </div>
-</aside>
+      </div>
+    </aside>
 
-        <section class="semesters-main-content">
-            <div class="content-wrapper">
-                <div id="semesters-grid">
-                    </div>
-                <div class="additional-requirements-container">
-                    <h2>Requisitos Adicionales</h2>
-                    <div id="additional-requirements">
-                        </div>
-                </div>
-            </div>
-        </section>
+    <section class="semesters-main-content">
+      <div class="content-wrapper">
+        <div id="semesters-grid"></div>
+      </div>
+    </section>
+  </main>
 
-    </main>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
