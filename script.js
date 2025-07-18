@@ -140,6 +140,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function updateCourseLockStates() {
+  const approvedCourses = new Set();
+
+  document.querySelectorAll('.semester-column .course').forEach(c => {
+    approvedCourses.add(c.dataset.code);
+  });
+
+  document.querySelectorAll('#course-bank .course').forEach(c => {
+    const prereqs = JSON.parse(c.dataset.prerequisites);
+
+    const allMet = prereqs.every(req => approvedCourses.has(req));
+
+    if (!allMet && prereqs.length > 0) {
+      c.classList.add('locked');
+    } else {
+      c.classList.remove('locked');
+    }
+  });
+}
+
   function saveState() {
     const state = {
       semesters: {},
@@ -154,9 +174,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.req-item').forEach(req => {
       state.requirements[req.id] = req.classList.contains('completed');
     });
-
-    localStorage.setItem('mallaState', JSON.stringify(state));
-  }
+  
+  localStorage.setItem('mallaState', JSON.stringify(state));
+  updateCourseLockStates();
+}
 
   function loadState() {
     const state = JSON.parse(localStorage.getItem('mallaState'));
@@ -190,7 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     enableDragAndDrop();
   }
-
-  loadState();
+  updateCourseLockStates();
 
 });
