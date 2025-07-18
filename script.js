@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const semestersGrid = document.getElementById('semesters-grid');
   const additionalReqsContainer = document.getElementById('additional-requirements');
 
-  // === DATOS DE CURSOS COMPLETOS ===
   const courseData = [
     { code: 'ART-MIN', name: 'Mínimo de Artes', credits: 10, prerequisites: [] },
     { code: 'LET-MIN', name: 'Mínimo de Letras', credits: 10, prerequisites: [] },
@@ -68,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'req-iniciacion', name: 'Taller de Iniciación Aprobado' }
   ];
 
-  // === RENDERIZAR SEMESTRES ===
   for (let i = 1; i <= 10; i++) {
     const semesterCol = document.createElement('div');
     semesterCol.classList.add('semester-column');
@@ -77,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     semestersGrid.appendChild(semesterCol);
   }
 
-  // === RENDERIZAR CURSOS ===
   courseData.forEach(course => {
     const courseEl = document.createElement('div');
     courseEl.className = 'course';
@@ -93,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
     courseBank.appendChild(courseEl);
   });
 
-  // === RENDERIZAR REQUISITOS ADICIONALES ===
   additionalReqsData.forEach(req => {
     const reqEl = document.createElement('div');
     reqEl.classList.add('req-item');
@@ -106,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     additionalReqsContainer.appendChild(reqEl);
   });
 
-  // === DRAG & DROP ===
   enableDragAndDrop();
 
   function enableDragAndDrop() {
@@ -145,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // === GUARDAR ESTADO EN LOCALSTORAGE ===
   function saveState() {
     const state = {
       semesters: {},
@@ -164,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('mallaState', JSON.stringify(state));
   }
 
-  // === CARGAR ESTADO ===
   function loadState() {
     const state = JSON.parse(localStorage.getItem('mallaState'));
     if (!state) return;
