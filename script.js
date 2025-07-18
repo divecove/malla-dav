@@ -5,10 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const additionalReqsContainer = document.getElementById('additional-requirements');
 
   const courseData = [
-    { code: 'MIN-ART', name: 'Mínimo de Artes', credits: 10, prerequisites: [] },
-    { code: 'MIN-LET', name: 'Mínimo de Letras', credits: 10, prerequisites: [] },
+    { code: 'ARO100T', name: 'Introducción al Arte Contemporáneo', credits: 10, prerequisites: [] },
+    { code: 'IHI0214', name: 'Historia de Chile Contemporáneo', credits: 10, prerequisites: [] },
+    { code: 'MAT1000', name: 'Precálculo', credits: 10, prerequisites: [] },
+    { code: 'LET1011', name: 'Literatura Universal I', credits: 10, prerequisites: [] },
     { code: 'IHI0205', name: 'Historia Mundial Contemporanea', credits: 10, prerequisites: [] },
-    { code: 'MIN-FIL', name: 'Mínimo de Filosofía', credits: 10, prerequisites: [] },
+    { code: 'FIL189', name: 'Introducción a la Filosofía', credits: 10, prerequisites: [] },
     { code: 'MAT0100', name: 'Razonamiento Cuantitativo', credits: 10, prerequisites: [] },
     { code: 'VRA0901', name: 'Taller de Iniciación', credits: 5, prerequisites: [] },
     { code: 'COM101', name: 'Test de Actualidad I A', credits: 0, prerequisites: [] },
