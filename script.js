@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const semestersGrid = document.getElementById('semesters-grid');
   const additionalReqsContainer = document.getElementById('additional-requirements');
 
-    const courseData = [
+  const courseData = [
     { code: 'MIN-ART', name: 'Mínimo de Artes', credits: 10, prerequisites: [] },
     { code: 'MIN-LET', name: 'Mínimo de Letras', credits: 10, prerequisites: [] },
     { code: 'IHI0205', name: 'Historia Mundial Contemporanea', credits: 10, prerequisites: [] },
@@ -131,7 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
         zone.classList.remove('drag-over');
         const courseId = e.dataTransfer.getData('text/plain');
         const courseEl = document.getElementById(courseId);
+
         if (courseEl) {
+          // Si está locked, no dejar moverlo
+          if (courseEl.classList.contains('locked')) return;
+
           zone.appendChild(courseEl);
           courseEl.classList.toggle('approved', zone.classList.contains('semester-column'));
           saveState();
@@ -141,24 +145,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateCourseLockStates() {
-  const approvedCourses = new Set();
+    const approvedCourses = new Set();
 
-  document.querySelectorAll('.semester-column .course').forEach(c => {
-    approvedCourses.add(c.dataset.code);
-  });
+    // Recolectar los cursos aprobados (dentro de semestres)
+    document.querySelectorAll('.semester-column .course').forEach(c => {
+      approvedCourses.add(c.dataset.code);
+    });
 
-  document.querySelectorAll('#course-bank .course').forEach(c => {
-    const prereqs = JSON.parse(c.dataset.prerequisites);
+    // Para cada curso en el banco, bloquear si sus prerequisitos no están aprobados
+    document.querySelectorAll('#course-bank .course').forEach(c => {
+      const prereqs = JSON.parse(c.dataset.prerequisites);
 
-    const allMet = prereqs.every(req => approvedCourses.has(req));
+      const allMet = prereqs.every(req => approvedCourses.has(req));
 
-    if (!allMet && prereqs.length > 0) {
-      c.classList.add('locked');
-    } else {
-      c.classList.remove('locked');
-    }
-  });
-}
+      if (!allMet && prereqs.length > 0) {
+        c.classList.add('locked');
+      } else {
+        c.classList.remove('locked');
+      }
+    });
+  }
 
   function saveState() {
     const state = {
@@ -174,10 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.req-item').forEach(req => {
       state.requirements[req.id] = req.classList.contains('completed');
     });
-  
-  localStorage.setItem('mallaState', JSON.stringify(state));
-  updateCourseLockStates();
-}
+
+    localStorage.setItem('mallaState', JSON.stringify(state));
+    updateCourseLockStates();
+  }
 
   function loadState() {
     const state = JSON.parse(localStorage.getItem('mallaState'));
@@ -210,7 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     enableDragAndDrop();
+    updateCourseLockStates();
   }
-  updateCourseLockStates();
+
+  loadState();
 
 });
