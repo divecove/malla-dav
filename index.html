@@ -13,12 +13,13 @@
 
   <main class="main-container">
     <aside class="courses-sidebar">
-      <div class="course-bank-container">
-        <h2>Banco de Cursos</h2>
-        <p>Arrastra un curso a un semestre para marcarlo como aprobado.</p>
-        <div id="course-bank"></div>
+      <div class="summary-container">
+        <h2>Resumen Académico</h2>
+        <div id="summary-output">
+          <p>Promedio (PPA): <strong id="gpa-value">N/A</strong></p>
+          <p>Créditos Aprobados: <strong id="credits-value">0</strong></p>
+        </div>
       </div>
-
       <div class="additional-requirements-container">
         <h2>Requisitos Adicionales</h2>
         <div id="additional-requirements"></div>
@@ -26,10 +27,13 @@
     </aside>
 
     <section class="semesters-main-content">
-      <div class="content-wrapper">
-        <div id="semesters-grid"></div>
+      <div id="semesters-grid">
+        </div>
+      
+      <div class="add-semester-wrapper">
+        <button id="add-semester-btn">+ Añadir Semestre</button>
       </div>
-    </section>
+      </section>
   </main>
 
   <script src="script.js"></script>
