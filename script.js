@@ -1,217 +1,322 @@
-/* --- General Styles & Color Palette --- */
-:root {
-    --color-bg: #f0f8ff;
-    --color-container-bg: #ffffff;
-    --color-header: #003366;
-    --color-text: #333333;
-    --color-available: #b3d9ff;
-    --color-approved: #3385ff;
-    --color-approved-text: #ffffff;
-    --color-locked: #e0e0e0;
-    --color-locked-text: #888888;
-    --color-semester-border: #cce6ff;
-    --color-drag-over: #a3c2e0;
-}
+document.addEventListener('DOMContentLoaded', () => {
+    // --- ELEMENTOS DEL DOM ---
+    const semestersGrid = document.getElementById('semesters-grid');
+    const additionalReqsContainer = document.getElementById('additional-requirements');
+    const gpaValueEl = document.getElementById('gpa-value');
+    const creditsValueEl = document.getElementById('credits-value');
+    const addSemesterBtn = document.getElementById('add-semester-btn');
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    margin: 0;
-    padding: 20px;
-    user-select: none;
-}
+    // --- ESTADO INICIAL ---
+    let semesterCount = 11; // Inicia con 11 semestres por defecto
 
-h1, h2, h3 {
-    color: var(--color-header);
-    text-align: center;
-}
+    // --- DATOS: Malla Curricular ---
+    const courseData = [
+        // Semestre 1
+        { code: 'ARO100T', name: 'Introducción al Arte Contemporáneo', credits: 10, prerequisites: [], semester: 1 },
+        { code: 'IHI0214', name: 'Historia de Chile Contemporáneo', credits: 10, prerequisites: [], semester: 1 },
+        { code: 'VRA0901', name: 'Taller de Iniciación', credits: 5, prerequisites: [], semester: 1 },
+        { code: 'MAT1000', name: 'Precálculo', credits: 10, prerequisites: [], semester: 1 },
+        { code: 'LET1011', name: 'Literatura Universal I', credits: 10, prerequisites: [], semester: 1 },
+        { code: 'FIL189', name: 'Introducción a la Filosofía', credits: 10, prerequisites: [], semester: 1 },
+        // Semestre 2
+        { code: 'MAT0100', name: 'Razonamiento Cuantitativo', credits: 10, prerequisites: [], semester: 2 },
+        { code: 'COM115', name: 'Lenguaje Visual', credits: 10, prerequisites: [], semester: 2 },
+        { code: 'ESO013', name: 'El Cuerpo en la Historia del Arte', credits: 10, prerequisites: [], semester: 2 },
+        { code: 'FIL217H', name: 'Verdad y Belleza', credits: 10, prerequisites: [], semester: 2 },
+        // Semestre 3
+        { code: 'ARO113M', name: 'Tiempo, Movimiento y Representación', credits: 10, prerequisites: [], semester: 3 },
+        { code: 'ART0404', name: 'Artes Mediales', credits: 10, prerequisites: [], semester: 3 },
+        { code: 'COM706', name: 'Herramientas de Gestión Audiovisual', credits: 10, prerequisites: [], semester: 3 },
+        { code: 'EST210A', name: 'Fundamentos de la Estética', credits: 10, prerequisites: [], semester: 3 },
+        { code: 'ART0403', name: 'Dibujo', credits: 10, prerequisites: [], semester: 3 },
+        { code: 'ESO235C', name: 'Introducción a la Gestión Cultural', credits: 10, prerequisites: [], semester: 3 },
+        // Semestre 4
+        { code: 'COM109', name: 'Historia de la Comunicación Social', credits: 10, prerequisites: [], semester: 4 },
+        { code: 'COM110', name: 'Teoría de la Comunicación', credits: 10, prerequisites: [], semester: 4 },
+        { code: 'COM705', name: 'Espectáculo Audiovisual', credits: 10, prerequisites: ['EST210A'], semester: 4 },
+        { code: 'COM122', name: 'Narración de Ficción', credits: 10, prerequisites: [], semester: 4 },
+        // Semestre 5
+        { code: 'COM708', name: 'Fundamentos Dramáticos de lo Audiovisual', credits: 10, prerequisites: ['COM122'], semester: 5 },
+        { code: 'COM718', name: 'Taller de Lenguaje Audiovisual', credits: 10, prerequisites: ['COM115'], semester: 5 },
+        { code: 'COM116', name: 'Audiencias', credits: 10, prerequisites: ['COM110'], semester: 5 },
+        { code: 'COM120', name: 'Narración de No Ficción', credits: 10, prerequisites: [], semester: 5 },
+        { code: 'SOL126C', name: 'Metodología de la Investigación Social', credits: 10, prerequisites: [], semester: 5 },
+        { code: 'COM113', name: 'Tecnologías de la Comunicación', credits: 10, prerequisites: [], semester: 5 },
+        // Semestre 6
+        { code: 'COM1000', name: 'Práctica Interna (20 hrs)', credits: 0, prerequisites: ['COM719'], semester: 6 },
+        { code: 'IHI0205', name: 'Historia Mundial Contemporánea', credits: 10, prerequisites: [], semester: 6 },
+        { code: 'COM177', name: 'Narración Interactiva', credits: 10, prerequisites: ['COM113'], semester: 6 },
+        { code: 'COM102', name: 'Test de Actualidad I B', credits: 0, prerequisites: ['COM101'], semester: 6 },
+        { code: 'COM121', name: 'Semiología', credits: 10, prerequisites: ['COM110'], semester: 6 },
+        { code: 'COM719', name: 'Taller de Realización Audiovisual', credits: 10, prerequisites: ['COM718'], semester: 6 },
+        // Semestre 7
+        { code: 'COM704', name: 'Seminario de Cine', credits: 10, prerequisites: ['COM705'], semester: 7 },
+        { code: 'COM710', name: 'Taller de Televisión', credits: 10, prerequisites: ['COM719'], semester: 7 },
+        { code: 'DEL307', name: 'Derecho de la Comunicación', credits: 10, prerequisites: [], semester: 7 },
+        { code: 'COM101', name: 'Test de Actualidad I A', credits: 0, prerequisites: [], semester: 7 },
+        { code: 'COM619', name: 'Taller de Producción Creativa', credits: 10, prerequisites: [], semester: 7 },
+        { code: 'COM712', name: 'Géneros y Formatos del Guión', credits: 10, prerequisites: ['COM708'], semester: 7 },
+        // Semestre 8
+        { code: 'COM104', name: 'Test de Actualidad II B', credits: 0, prerequisites: ['COM103'], semester: 8 },
+        { code: 'COM720', name: 'Seminario de Documental', credits: 10, prerequisites: ['COM120'], semester: 8 },
+        { code: 'COM716', name: 'Taller de Ficción', credits: 10, prerequisites: ['COM710', 'COM712'], semester: 8 },
+        { code: 'ACO264E', name: 'Habilidades Comunicativas Orales', credits: 10, prerequisites: [], semester: 8 },
+        { code: 'COM790', name: 'Práctica Profesional I', credits: 0, prerequisites: ['COM1000'], semester: 8 },
+        // Semestre 9
+        { code: 'FIL183', name: '¿Filosofía Para Qué?', credits: 10, prerequisites: [], semester: 9 },
+        { code: 'COM103', name: 'Test de Actualidad II A', credits: 0, prerequisites: ['COM102'], semester: 9 },
+        { code: 'COM713', name: 'Taller de Documental', credits: 10, prerequisites: ['COM719', 'COM720'], semester: 9 },
+        { code: 'COM714', name: 'Seminario de Nuevas Tendencias', credits: 10, prerequisites: [], semester: 9 },
+        { code: 'COM715', name: 'Escritura del Relato Audiovisual', credits: 10, prerequisites: ['COM712'], semester: 9 },
+        // Semestre 10
+        { code: 'COM709', name: 'Generación y Desarrollo de Proyectos', credits: 10, prerequisites: ['COM706'], semester: 10 },
+        { code: 'OR-TEO', name: 'OR Teológico', credits: 10, prerequisites: [], semester: 10 },
+        { code: 'COM100', name: 'Desafíos de la Comunicación', credits: 10, prerequisites: [], semester: 10 },
+        { code: 'COM3500', name: 'Economía de las Comunicaciones', credits: 10, prerequisites: [], semester: 10 },
+        { code: 'COM105', name: 'Test de Actualidad III A', credits: 0, prerequisites: ['COM104'], semester: 10 },
+        { code: 'COM106', name: 'Test de Actualidad III B', credits: 0, prerequisites: ['COM105'], semester: 10 },
+        { code: 'COM711', name: 'Seminario de Televisión', credits: 10, prerequisites: ['COM704'], semester: 10 },
+        { code: 'COM200', name: 'Éticas de las Comunicaciones', credits: 10, prerequisites: [], semester: 10 },
+        { code: 'OP1', name: 'Optativo de Profundización I', credits: 10, prerequisites: [], semester: 10 },
+        { code: 'COM721', name: 'Taller Avanzado de Realización', credits: 10, prerequisites: ['COM716', 'COM713'], semester: 10 },
+        { code: 'COM3504', name: 'Industria Audiovisual', credits: 10, prerequisites: ['COM3500'], semester: 10 },
+        { code: 'OP2', name: 'Optativo de Profundización II', credits: 10, prerequisites: [], semester: 10 },
+        { code: 'OP3', name: 'Optativo de Profundización III', credits: 10, prerequisites: [], semester: 10 },
+        { code: 'COM791', name: 'Práctica Profesional II', credits: 0, prerequisites: ['COM790'], semester: 10 }
+    ];
+    const courseDataMap = new Map(courseData.map(c => [c.code, c]));
+    const additionalReqsData = [
+        { id: 'req-com-escrita', name: 'Examen de Comunicación Escrita (VRA100C)' },
+        { id: 'req-english', name: 'English Test Alte 2 (VRA2000)' },
+    ];
 
-h1 { margin-top: 0; }
-h2 { font-size: 1.2em; }
+    function updateSummary() {
+        let totalCredits = 0;
+        let weightedSum = 0;
+        document.querySelectorAll('.course.approved').forEach(courseEl => {
+            const courseCode = courseEl.dataset.code;
+            const courseInfo = courseDataMap.get(courseCode);
+            const gradeInput = courseEl.querySelector('.course-grade');
+            const grade = gradeInput ? parseFloat(gradeInput.value) : NaN;
 
-p {
-    text-align: center;
-    font-size: 0.9em;
-    color: #666;
-    margin-top: -10px;
-    margin-bottom: 20px;
-}
+            if (courseInfo && !isNaN(grade) && grade >= 1 && grade <= 7) {
+                totalCredits += courseInfo.credits;
+                weightedSum += grade * courseInfo.credits;
+            }
+        });
+        creditsValueEl.textContent = totalCredits;
+        gpaValueEl.textContent = totalCredits > 0 ? (weightedSum / totalCredits).toFixed(2) : 'N/A';
+    }
 
-/* --- Estructura Principal del Layout --- */
-.main-container {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-}
+    function initializeUI() {
+        semestersGrid.innerHTML = '';
+        for (let i = 1; i <= semesterCount; i++) {
+            createSemesterElement(i);
+        }
 
-.courses-sidebar {
-    flex: 0 0 280px;
-    position: sticky;
-    top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
+        courseData.forEach(course => {
+            const courseEl = createCourseElement(course);
+            const targetContainer = document.querySelector(`[data-semester="${course.semester}"]`);
+            if (targetContainer) {
+                targetContainer.appendChild(courseEl);
+            }
+        });
 
-.semesters-main-content {
-    flex: 1;
-}
+        additionalReqsContainer.innerHTML = ''; // Limpia por si acaso
+        additionalReqsData.forEach(req => {
+            const reqEl = document.createElement('div');
+            reqEl.id = req.id;
+            reqEl.className = 'req-item';
+            reqEl.textContent = req.name;
+            reqEl.addEventListener('click', () => {
+                reqEl.classList.toggle('completed');
+                saveState();
+            });
+            additionalReqsContainer.appendChild(reqEl);
+        });
+    }
 
-/* --- Estilos de Curso Individual --- */
-.course {
-    position: relative; 
-    padding: 10px;
-    min-height: 65px; 
-    border-radius: 8px;
-    cursor: grab;
-    transition: background-color 0.3s, color 0.3s, box-shadow 0.2s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    background-color: var(--color-available);
-}
+    function addSemester() {
+        semesterCount++;
+        const newSemester = createSemesterElement(semesterCount);
+        addDropZoneEventListeners(newSemester);
+        saveState();
+    }
+    
+    function createSemesterElement(semesterNumber) {
+        const semesterCol = document.createElement('div');
+        semesterCol.classList.add('semester-column');
+        semesterCol.dataset.semester = semesterNumber;
+        semesterCol.innerHTML = `<h3>Semestre ${semesterNumber}</h3>`;
+        semestersGrid.appendChild(semesterCol);
+        return semesterCol;
+    }
+    
+    function createCourseElement(course) {
+        const courseEl = document.createElement('div');
+        courseEl.className = 'course';
+        courseEl.id = course.code;
+        courseEl.draggable = true;
+        courseEl.dataset.code = course.code;
+        courseEl.dataset.prerequisites = JSON.stringify(course.prerequisites);
+        courseEl.innerHTML = `
+            <div class="course-details">
+                <span class="course-code">${course.code}</span>
+                <span class="course-name">${course.name}</span>
+                <span class="course-credits">${course.credits} créditos</span>
+            </div>
+            <div class="course-grade-wrapper"></div>
+        `;
+        courseEl.addEventListener('click', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            courseEl.classList.toggle('approved');
+            handleApprovalState(courseEl);
+            saveState();
+        });
+        return courseEl;
+    }
 
-.course-details {
-    padding-right: 70px; 
-}
+    function addGradeInput(courseEl) {
+        const gradeWrapper = courseEl.querySelector('.course-grade-wrapper');
+        if (!gradeWrapper.querySelector('.course-grade')) {
+            const gradeInput = document.createElement('input');
+            gradeInput.type = 'number';
+            gradeInput.min = 1.0;
+            gradeInput.max = 7.0;
+            gradeInput.step = 0.1;
+            gradeInput.placeholder = 'Nota';
+            gradeInput.className = 'course-grade';
+            gradeInput.addEventListener('change', saveState);
+            gradeInput.addEventListener('click', (e) => e.stopPropagation());
+            gradeWrapper.appendChild(gradeInput);
+        }
+    }
+    
+    function handleApprovalState(courseEl) {
+        const isApproved = courseEl.classList.contains('approved');
+        const gradeWrapper = courseEl.querySelector('.course-grade-wrapper');
+        if (isApproved) {
+            addGradeInput(courseEl);
+        } else {
+            if (gradeWrapper) gradeWrapper.innerHTML = '';
+        }
+    }
 
-.course:active { cursor: grabbing; }
+    function addDropZoneEventListeners(zone) {
+        zone.addEventListener('dragover', e => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            const courseId = e.dataTransfer.getData('text/plain');
+            const courseEl = document.getElementById(courseId);
 
-.course-code { font-weight: bold; font-size: 0.9em; display: block; }
-.course-name { font-size: 0.85em; margin: 4px 0; display: block; }
-.course-credits { font-size: 0.8em; font-style: italic; display: block; text-align: left; }
+            if (courseEl) {
+                zone.appendChild(courseEl);
+                saveState();
+            }
+        });
+    }
 
-/* Estados de los cursos */
-.course.locked {
-    background-color: var(--color-locked);
-    color: var(--color-locked-text);
-    cursor: not-allowed;
-    pointer-events: none;
-}
-.course.locked .course-details { pointer-events: auto; }
-.course.approved {
-    background-color: var(--color-approved);
-    color: var(--color-approved-text);
-}
-.course.approved .course-grade {
-    color: var(--color-approved-text);
-    border-bottom-color: var(--color-approved-text);
-}
-.course.approved .course-grade::placeholder { color: rgba(255, 255, 255, 0.7); }
+    function enableDragAndDrop() {
+        document.addEventListener('dragstart', e => {
+            if (e.target.classList.contains('course')) {
+                if (e.target.classList.contains('locked')) {
+                    e.preventDefault();
+                    return;
+                }
+                e.dataTransfer.setData('text/plain', e.target.id);
+                setTimeout(() => { e.target.style.opacity = '0.5'; }, 0);
+            }
+        });
 
-/* --- Grilla de Semestres --- */
-#semesters-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 15px;
-}
+        document.addEventListener('dragend', e => {
+            if (e.target.classList.contains('course')) {
+                e.target.style.opacity = '1';
+            }
+        });
 
-.semester-column {
-    background-color: var(--color-container-bg);
-    padding: 15px;
-    border-radius: 12px;
-    min-height: 250px;
-    border: 2px dashed var(--color-semester-border);
-    transition: background-color 0.3s, border-color 0.3s;
-}
-.semester-column.drag-over {
-    background-color: var(--color-drag-over);
-    border-color: var(--color-header);
-}
-.semester-column h3 { margin-top: 0; font-size: 1em; padding-bottom: 10px; border-bottom: 1px solid var(--color-semester-border); }
-.semester-column .course { margin-bottom: 10px; }
+        document.querySelectorAll('.semester-column').forEach(addDropZoneEventListeners);
+    }
 
-/* --- Requisitos Adicionales --- */
-.additional-requirements-container {
-    padding: 20px;
-    background-color: var(--color-container-bg);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-#additional-requirements { display: flex; flex-direction: column; gap: 10px; }
-.req-item {
-    padding: 12px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    background-color: var(--color-locked);
-    color: var(--color-locked-text);
-    font-weight: 500;
-    transition: background-color 0.3s, color 0.3s;
-    text-align: center;
-}
-.req-item.completed {
-    background-color: var(--color-approved);
-    color: var(--color-approved-text);
-}
+    function updateCourseLockStates() {
+        const approvedCourses = new Set(Array.from(document.querySelectorAll('.course.approved')).map(c => c.dataset.code));
+        courseData.forEach(courseInfo => {
+            const courseEl = document.getElementById(courseInfo.code);
+            if (courseEl) {
+                const prereqs = courseInfo.prerequisites;
+                const allMet = prereqs.every(req => approvedCourses.has(req));
+                courseEl.classList.toggle('locked', prereqs.length > 0 && !allMet);
+            }
+        });
+    }
+    
+    function saveState() {
+        const state = {
+            semesterCount: semesterCount,
+            courses: {},
+            requirements: {}
+        };
+        document.querySelectorAll('.course').forEach(c => {
+            if (c.parentElement && c.parentElement.dataset.semester) {
+                const parentId = c.parentElement.dataset.semester;
+                state.courses[c.id] = {
+                    parentSemester: parentId,
+                    approved: c.classList.contains('approved'),
+                    grade: c.querySelector('.course-grade')?.value || ''
+                };
+            }
+        });
+        document.querySelectorAll('.req-item').forEach(req => {
+            state.requirements[req.id] = req.classList.contains('completed');
+        });
+        localStorage.setItem('mallaState', JSON.stringify(state));
+        updateCourseLockStates();
+        updateSummary();
+    }
 
-/* --- Input de nota --- */
-.course-grade-wrapper {
-    position: absolute;
-    bottom: 8px;
-    right: 10px;
-}
+    function loadState() {
+        const state = JSON.parse(localStorage.getItem('mallaState'));
+        if (state && state.semesterCount) {
+            semesterCount = state.semesterCount;
+        }
 
-.course-grade {
-    width: 60px;
-    font-family: inherit;
-    font-size: 0.9em;
-    padding: 2px 4px;
-    border: none;
-    border-bottom: 1px solid var(--color-header);
-    background-color: transparent;
-    color: var(--color-text);
-    text-align: center;
-    outline: none;
-    transition: border-color 0.3s;
-    -moz-appearance: textfield;
-}
+        initializeUI(); 
 
-.course-grade::placeholder { color: #999; font-style: italic; font-size: 0.9em; }
-.course-grade:focus { border-bottom: 1px solid var(--color-approved); }
-.course-grade::-webkit-outer-spin-button,
-.course-grade::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+        if (!state) return;
 
-/* --- Contenedor de Resumen Académico --- */
-.summary-container {
-    padding: 20px;
-    background-color: var(--color-container-bg);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-#summary-output p {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1em;
-    color: var(--color-text);
-    text-align: left;
-    margin: 10px 0;
-}
-#summary-output strong {
-    color: var(--color-header);
-    font-size: 1.1em;
-}
+        Object.entries(state.courses).forEach(([courseId, courseInfo]) => {
+            const courseEl = document.getElementById(courseId);
+            if (!courseEl) return;
+            
+            const parentEl = document.querySelector(`[data-semester="${courseInfo.parentSemester}"]`);
+            if (parentEl) {
+                parentEl.appendChild(courseEl);
+            }
+            
+            courseEl.classList.toggle('approved', courseInfo.approved);
+            handleApprovalState(courseEl);
+            const gradeInput = courseEl.querySelector('.course-grade');
+            if (gradeInput && courseInfo.grade) {
+                gradeInput.value = courseInfo.grade;
+            }
+        });
 
-.add-semester-wrapper {
-    text-align: center;
-    margin-top: 20px;
-}
+        if (state.requirements) {
+            Object.entries(state.requirements).forEach(([id, completed]) => {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('completed', completed);
+            });
+        }
+    }
 
-#add-semester-btn {
-    font-family: inherit;
-    font-size: 1em;
-    font-weight: 500;
-    padding: 10px 20px;
-    background-color: var(--color-available);
-    color: var(--color-header);
-    border: 2px solid var(--color-header);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-#add-semester-btn:hover {
-    background-color: var(--color-header);
-    color: var(--color-approved-text);
-}
+    // --- FLUJO DE EJECUCIÓN ---
+    addSemesterBtn.addEventListener('click', addSemester);
+    loadState();
+    enableDragAndDrop();
+    updateCourseLockStates();
+    updateSummary();
+});
